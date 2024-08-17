@@ -46,14 +46,14 @@ def main():
 
     use_brect = True
     plot_world_landmark = True
-    enable_segmentation = True
+    enable_segmentation = False
 
     # モデルロード ##
     mp_pose = mp.solutions.pose
     with mp_pose.Pose(
         # upper_body_only=upper_body_only,
         model_complexity=2,
-        enable_segmentation=True,
+        enable_segmentation=False,
         min_detection_confidence=0.5,
     ) as pose:
 
@@ -71,14 +71,15 @@ def main():
             image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
             results = pose.process(image)
 
-            # 描画 
-            if enable_segmentation and results.segmentation_mask is not None:
-                # セグメンテーション
-                mask = np.stack((results.segmentation_mask, ) * 3,
-                                axis=-1) > 0.5
-                bg_resize_image = np.zeros(image.shape, dtype=np.uint8)
-                bg_resize_image[:] = (0, 255, 0)
-                debug_image = np.where(mask, debug_image, bg_resize_image)
+            # グリーンバックにする
+            # if enable_segmentation and results.segmentation_mask is not None:
+            #     # セグメンテーション
+            #     mask = np.stack((results.segmentation_mask, ) * 3,
+            #                     axis=-1) > 0.5
+            #     bg_resize_image = np.zeros(image.shape, dtype=np.uint8)
+            #     bg_resize_image[:] = (0, 255, 0)
+            #     debug_image = np.where(mask, debug_image, bg_resize_image)
+
             if results.pose_landmarks is not None:
                 # 外接矩形の計算
                 brect = calc_bounding_rect(debug_image, results.pose_landmarks)
